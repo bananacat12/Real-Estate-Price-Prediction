@@ -1,7 +1,7 @@
 import streamlit as st
 import joblib
 import pandas as pd
-from sklearn.preprocessing import LabelEncoder
+import numpy as np
 
 # ---------------------------
 # Load model từ file
@@ -11,11 +11,38 @@ def load_model(model_path: str):
     return model
 
 # ---------------------------
-# LabelEncoder tạm thời (demo)
+# Tiền xử lý 'distance_from_expressway'
 # ---------------------------
-def temporary_label_encoder(df: pd.DataFrame, col: str) -> pd.DataFrame:
-    encoder = LabelEncoder()
-    df[col] = encoder.fit_transform(df[col])
+def preprocess_distance(df: pd.DataFrame) -> pd.DataFrame:
+    def convert_distance(value):
+        if isinstance(value, str):
+            value = value.replace('m', '').strip()
+            try:
+                if '-' in value:
+                    # Xử lý khoảng cách, ví dụ: '101-150m'
+                    parts = value.split('-')
+                    low = float(parts[0])
+                    high = float(parts[1])
+                    return (low + high) / 2
+                elif value.startswith('<='):
+                    # Xử lý '<=50m'
+                    num = float(value.replace('<=', '').strip())
+                    return num
+                elif value.startswith('>'):
+                    # Xử lý '>500m'
+                    num = float(value.replace('>', '').strip())
+                    return num
+                else:
+                    # Xử lý giá trị đơn lẻ, ví dụ: '300m'
+                    return float(value)
+            except (ValueError, TypeError):
+                return np.nan  # Trả về NaN nếu không thể chuyển đổi
+        elif np.issubdtype(type(value), np.number):
+            return value
+        else:
+            return np.nan  # Trả về NaN cho các loại dữ liệu khác
+
+    df['distance_from_expressway'] = df['distance_from_expressway'].apply(convert_distance)
     return df
 
 # ---------------------------
@@ -54,6 +81,13 @@ def main():
         "<=50m", "50m-100m", "100m-200m", ">500m"
     ])
 
+    storey_range_category = st.selectbox("🏢 Khoảng tầng", [
+        "Low (01-06)", "Low-Mid (07-12)", "Mid (13-18)", "High (19-30)", "Very High (>30)"
+    ])
+
+    block = st.text_input("🏢 Tòa nhà (Block)", value="101")
+    street_name = st.text_input("🛣️ Tên đường (Street Name)", value="ANG MO KIO AVE 1")
+
     # ---------------------------
     # Nút Dự đoán
     # ---------------------------
@@ -69,13 +103,14 @@ def main():
                 "floor_area_sqm": [floor_area_sqm],
                 "remaining_lease_years": [remaining_lease_years],
                 "distance_from_expressway": [distance_from_expressway],
+                "storey_range_category": [storey_range_category],
+                "block": [block],
+                "street_name": [street_name]
             }
             X_new = pd.DataFrame(data)
 
-            # Mã hoá label tạm thời (chỉ dùng nếu model không có pipeline chuẩn)
-            X_new = temporary_label_encoder(X_new, "town")
-            X_new = temporary_label_encoder(X_new, "flat_type")
-            X_new = temporary_label_encoder(X_new, "distance_from_expressway")
+            # Tiền xử lý distance_from_expressway
+            X_new = preprocess_distance(X_new)
 
             # Dự đoán
             prediction = model.predict(X_new)[0]
@@ -96,7 +131,7 @@ def main():
         try:
             df_raw = pd.read_csv("resale.csv")  # Đặt đúng tên file CSV
             st.markdown("### 🗂️ Dữ liệu Bán lại HDB trên thị trường hiện nay")
-            st.dataframe(df_raw)  # Hiển thị 50 dòng đầu tiên
+            st.dataframe(df_raw.head(50))  # Hiển thị 50 dòng đầu tiên
         except FileNotFoundError:
             st.error("❌ Không tìm thấy file 'resale.csv'!")
         except Exception as e:
