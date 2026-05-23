@@ -90,15 +90,6 @@ Thị trường bất động sản Singapore, đặc biệt phân khúc căn h�
 │
 ├── 🤖 random_forest_resale_price_model.joblib   # Mô hình đã huấn luyện
 │
-├── 📊 model_evaluation_metrics.csv              # Bảng MSE, RMSE, MAE, R²
-├── 📊 accuracy_by_town.csv                      # Độ chính xác ±10% theo khu vực
-├── 📊 cross_validation_results.csv              # Kết quả 5-Fold Cross-Validation
-│
-├── 🖼️ residuals_distribution.png
-├── 🖼️ residuals_vs_predicted.png
-├── 🖼️ actual_vs_predicted_with_line.png
-├── 🖼️ feature_importances.png
-│
 └── 📄 README.md
 ```
 
