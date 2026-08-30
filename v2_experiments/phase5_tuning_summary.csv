@@ -1,0 +1,3 @@
+Family,CV_R2_mean,CV_R2_std,Val2023_R2,Val2023_RMSE,Val2023_MAE,Params
+LightGBM,0.855565204071246,0.03860608784667264,0.8888221679628722,58003.956864780506,42266.536144343714,"{'subsample_freq': 1, 'subsample': 1.0, 'num_leaves': 127, 'n_estimators': 400, 'min_child_samples': 100, 'learning_rate': 0.05, 'colsample_bytree': 0.7}"
+RandomForest,0.8502875186268465,0.038105556288317056,0.8830559718945111,59489.120029361264,42759.16501570869,"{'n_estimators': 200, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_features': 0.5, 'max_depth': 25}"

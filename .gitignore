@@ -1,0 +1,9 @@
+# Dữ liệu thô (không version hóa data)
+resale.csv
+
+# Model artifacts (tái tạo được từ notebook; file v1 ~250MB vượt limit GitHub)
+*.joblib
+
+# Python / Jupyter cache
+__pycache__/
+.ipynb_checkpoints/
